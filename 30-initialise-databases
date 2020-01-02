@@ -1,0 +1,122 @@
+#!/bin/bash
+
+EnableMariaDBLogging(){
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable query logging"
+   mysql --protocol=tcp --host mariadb --user root --password="${MYSQL_ROOT_PASSWORD}" --execute="SET GLOBAL general_log=1;"
+}
+
+Initialise(){
+   IFS=,
+   VIDEOID=1
+   if [ -z "${MUSICDIRS}" ]; then
+      MUSICDIRS="/storage/music/"
+   fi
+   if [ -z "${VIDEODIRS}" ]; then
+      VIDEODIRS="/storage/videos/"
+   fi
+   if [ -z "${TVDIRS}" ]; then
+      TVDIRS="/storage/tvshows/"
+   fi
+   if [ -z "${CERTPREFIX}" ]; then
+      CERTPREFIX="$(grep -o -P '(?<=certprefix\"\ default=\"true\">).*(?=\<\/setting\>)' "${USERDATA}/addon_data/metadata.themoviedb.orgsettings.xml")"
+   else
+      CERTPREFIX="${CERTPREFIX} "
+   fi
+   if [ -z "${CERTCOUNTRY}" ]; then
+      CERTCOUNTRY="$(grep -o -P '(?<=tmdbcertcountry\">).*(?=\<\/setting\>)' "${USERDATA}/addon_data/metadata.themoviedb.org/settings.xml")"
+   else
+      CERTCOUNTRY="$(echo "${CERTCOUNTRY}" | tr "[:upper:]" "[:lower:]")"
+   fi
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification country: ${CERTCOUNTRY}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification prefix: ${CERTPREFIX}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Music locations: ${MUSICDIRS}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Video locations: ${VIDEODIRS}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    TV locations: ${TVDIRS}"
+}
+
+WaitForDBOnline(){
+   while [ "$(mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="SELECT User FROM mysql.user;" 2>/dev/null | grep -c kodi)" = 0 ]; do
+      echo "Waiting for database server to come online..." 
+      sleep 10
+   done
+}
+
+EnableAddons(){
+   while [ ! -f "${USERDATA}/Database/Addons27.db" ]; do
+      sleep 1
+   done
+   sleep 5
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable downloaded addons"
+   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.dateutil";'
+   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.future";'
+   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.six";'
+   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.kodi-six";'
+   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="service.libraryautoupdate";'
+}
+
+StartKODI(){
+   if [ ! -d "/config/.kodi/temp/" ]; then mkdir "/config/.kodi/temp"; touch "/config/.kodi/temp/kodi.log"; fi
+   tail -qFn0 "/config/.kodi/temp/kodi.log" >/dev/null 2>&1 &
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Create default configuration"
+   su -m "${USER}" -c '/usr/bin/kodi --headless &'
+   sleep 10
+}
+
+WaitForVideosDB(){
+   while [ -z "${VIDEOSDB}" ]; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for video database to be created..."
+      VIDEOSDB="$(mysql --protocol=tcp --host mariadb --user kodi --password="${KODIPASSWORD}" --execute="show databases;" --silent | grep MyVideo)"
+      sleep 1
+   done
+}
+
+WaitForMusicDB(){
+   while [ -z "${MUSICDB}" ]; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for music database to be created..."
+      MUSICDB="$(mysql --protocol=tcp --host mariadb --user kodi --password="${KODIPASSWORD}" --execute="show databases;" --silent | grep MyMusic)"
+      sleep 1
+   done
+}
+
+AddVideoLocations(){
+   for VIDEODIR in ${VIDEODIRS}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding movie content path to database: ${VIDEODIR}"
+      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${VIDEOSDB}; insert into path (idPath, strPath) values (NULL, '${VIDEODIR}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${VIDEOID}; update path set strContent='movies', strScraper='metadata.themoviedb.org', scanRecursive=2147483647, useFolderNames=1, strSettings='<settings version=\"2\"><setting id=\"certprefix\" default=\"true\">${CERTPREFIX}</setting><setting id=\"fanart\">true</setting><setting id=\"imdbanyway\" default=\"true\">false</setting><setting id=\"keeporiginaltitle\">true</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"RatingS\" default=\"true\">TMDb</setting><setting id=\"tmdbcertcountry\">${CERTCOUNTRY}</setting><setting id=\"trailer\">false</setting></settings>', noUpdate=0, exclude=0 where idPath=${VIDEOID};"
+      VIDEOID=$((VIDEOID + 1))
+   done
+}
+
+AddTVLocations(){
+   for TVDIR in ${TVDIRS}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding tv content path to database: ${TVDIR}"
+      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${VIDEOSDB}; insert into path (idPath, strPath) values (NULL, '${TVDIR}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${VIDEOID}; update path set strContent='tvshows', strScraper='metadata.tvshows.themoviedb.org', scanRecursive=0, useFolderNames=0, strSettings='<settings version=\"2\"><setting id=\"fanarttvart\">true</setting><setting id=\"keeporiginaltitle\" default=\"true\">false</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"tmdbart\">true</setting></settings>', noUpdate=0, exclude=0 where idPath=${VIDEOID};"
+      VIDEOID=$((VIDEOID + 1))
+   done
+}
+
+AddMusicLocations(){
+   for MUSICDIR in ${MUSICDIRS}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding music content path to database: ${MUSICDIR}"
+      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${MUSICDB}; insert into path (idPath, strPath) values (NULL, '${MUSICDIR}');"
+   done
+}
+
+RestartContainer(){
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Restart container"
+   pkill -u 0
+}
+
+##### Start #####
+Initialise
+if [ ! -f "${USERDATA}/Database/Addons27.db" ]; then
+   WaitForDBOnline
+   EnableMariaDBLogging
+   StartKODI
+   EnableAddons
+   WaitForVideosDB
+   WaitForMusicDB
+   AddVideoLocations
+   AddTVLocations
+   AddMusicLocations
+   RestartContainer
+fi

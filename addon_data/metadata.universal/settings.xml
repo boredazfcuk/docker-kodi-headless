@@ -1,0 +1,47 @@
+<settings>
+    <setting id="allcritics" value="All Critics" />
+    <setting id="alsoimdb" value="false" />
+    <setting id="alsometa" value="false" />
+    <setting id="alsootherrotten" value="false" />
+    <setting id="alsorotten" value="false" />
+    <setting id="alsotmdb" value="false" />
+    <setting id="certificationssource" value="IMDb" />
+    <setting id="certprefix" value="  " />
+    <setting id="countrysource" value="themoviedb.org" />
+    <setting id="creditssource" value="themoviedb.org" />
+    <setting id="fanart" value="true" />
+    <setting id="fanarttvfanart" value="true" />
+    <setting id="fanarttvposter" value="true" />
+    <setting id="fanarttvposterlanguage" value="en" />
+    <setting id="fullimdbsearch" value="false" />
+    <setting id="genressource" value="themoviedb.org" />
+    <setting id="imdbakatitles" value="Keep Original" />
+    <setting id="imdbcertcountry" value="United Kingdom" />
+    <setting id="imdbsearchlanguage" value="None" />
+    <setting id="imdbthumbs" value="false" />
+    <setting id="imdbtop250" value="true" />
+    <setting id="movieposterdb" value="true" />
+    <setting id="mratingsource" value="themoviedb.org" />
+    <setting id="omdbapikey" value="Please Enter Your OMDB API Key" />
+    <setting id="omdbapikey2" value="Please Enter Your OMDB API Key" />
+    <setting id="outlinesource" value="None" />
+    <setting id="plotsource" value="themoviedb.org" />
+    <setting id="searchservice" value="themoviedb.org" />
+    <setting id="studiosource" value="themoviedb.org" />
+    <setting id="taglinesource" value="themoviedb.org" />
+    <setting id="titlesource" value="themoviedb.org" />
+    <setting id="tmdbcertcountry" value="gb" />
+    <setting id="tmdbgenreslanguage" value="en" />
+    <setting id="tmdbplotlanguage" value="en" />
+    <setting id="tmdbsearchlanguage" value="en" />
+    <setting id="tmdbset" value="true" />
+    <setting id="tmdbsetlanguage" value="en" />
+    <setting id="tmdbtaglinelanguage" value="en" />
+    <setting id="tmdbtags" value="None" />
+    <setting id="tmdbthumblanguage" value="en" />
+    <setting id="tmdbthumbs" value="true" />
+    <setting id="tmdbtitlelanguage" value="en" />
+    <setting id="tmdbtrailer" value="true" />
+    <setting id="tmdbtrailerlanguage" value="en" />
+    <setting id="tomato" value="TomatoMeter" />
+</settings>

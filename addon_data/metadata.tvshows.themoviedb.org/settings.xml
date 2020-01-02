@@ -1,0 +1,6 @@
+<settings version="2">
+    <setting id="fanarttvart">true</setting>
+    <setting id="keeporiginaltitle" default="true">false</setting>
+    <setting id="language" default="true">en</setting>
+    <setting id="tmdbart">true</setting>
+</settings>
