@@ -3,4 +3,7 @@
 while [ "$(mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="SELECT User FROM mysql.user;" 2>/dev/null | grep -c kodi)" = 0 ]; do
    echo "Waiting for database server to come online..." 
    sleep 10
+   COUNTER=$(("${COUNTER:=0}" + 1))
+   if [ "${COUNTER}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
+   if [ "${COUNTER}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${KODIPASSWORD}"; fi
 done

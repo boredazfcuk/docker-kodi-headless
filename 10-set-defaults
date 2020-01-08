@@ -16,6 +16,9 @@ if [ ! -f "${USERDATA}/RssFeeds.xml" ]; then
    sed -i "/^<musicdatabase>$/,/^<\/musicdatabase>$/ s%^<user>.*<\/user>*%<user>kodi<\/user>%" "${USERDATA}/advancedsettings.xml"
    sed -i "/^<musicdatabase>$/,/^<\/musicdatabase>$/ s%^<pass>.*<\/pass>*%<pass>${KODIPASSWORD}<\/pass>%" "${USERDATA}/advancedsettings.xml"
 
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Configure Kodi webserver password"
+   sed -i "/^<services>$/,/^<\/services>$/ s%^<webserverpassword>.*<\/webserverpassword>*%<webserverpassword>${KODIPASSWORD}<\/webserverpassword>%" "${USERDATA}/advancedsettings.xml"
+
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable library cleaning"
    sed -i "/^<videolibrary>$/ a<cleanonupdate>true<\/cleanonupdate>" "${USERDATA}/advancedsettings.xml"
    sed -i "/^<musiclibrary>$/ a<cleanonupdate>true<\/cleanonupdate>" "${USERDATA}/advancedsettings.xml"

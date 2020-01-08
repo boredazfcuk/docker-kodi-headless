@@ -1,10 +1,5 @@
 #!/bin/bash
 
-EnableMariaDBLogging(){
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable query logging"
-   mysql --protocol=tcp --host mariadb --user root --password="${MYSQL_ROOT_PASSWORD}" --execute="SET GLOBAL general_log=1;"
-}
-
 Initialise(){
    IFS=,
    VIDEOID=1
@@ -35,15 +30,31 @@ Initialise(){
 }
 
 WaitForDBOnline(){
-   while [ "$(mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="SELECT User FROM mysql.user;" 2>/dev/null | grep -c kodi)" = 0 ]; do
+   while [ "$(mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
       echo "Waiting for database server to come online..." 
+      local COUNTER=$(("${COUNTER:=0}" + 1))
+      if [ "${COUNTER}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
+      if [ "${COUNTER}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${KODIPASSWORD}"; fi
       sleep 10
    done
 }
 
+EnableMariaDBLogging(){
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable query logging"
+   while [ "$(mysql --host=mariadb --user=root --password="${MYSQL_ROOT_PASSWORD}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
+      echo "Waiting for database server to come online..." 
+      local COUNTER=$(("${COUNTER:=0}" + 1))
+      if [ "${COUNTER}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
+      if [ "${COUNTER}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${KODIPASSWORD}"; fi
+      sleep 10
+   done
+   mysql --protocol=tcp --host mariadb --user root --password="${MYSQL_ROOT_PASSWORD}" --execute="SET GLOBAL general_log=1;"
+}
+
 EnableAddons(){
    while [ ! -f "${USERDATA}/Database/Addons27.db" ]; do
-      sleep 1
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Waiting for Addons databse to be created"
+      sleep 5
    done
    sleep 5
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable downloaded addons"
@@ -55,11 +66,12 @@ EnableAddons(){
 }
 
 StartKODI(){
-   if [ ! -d "/config/.kodi/temp/" ]; then mkdir "/config/.kodi/temp"; touch "/config/.kodi/temp/kodi.log"; fi
+   if [ ! -d "/config/.kodi/temp/" ]; then mkdir "/config/.kodi/temp"; touch "/config/.kodi/temp/kodi.log"; chown -R abc:abc /config; fi
    tail -qFn0 "/config/.kodi/temp/kodi.log" >/dev/null 2>&1 &
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Create default configuration"
-   su -m "${USER}" -c '/usr/bin/kodi --headless &'
+   /usr/bin/kodi --headless &
    sleep 10
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Kodi initialisation complete"
 }
 
 WaitForVideosDB(){
@@ -72,7 +84,7 @@ WaitForVideosDB(){
 
 WaitForMusicDB(){
    while [ -z "${MUSICDB}" ]; do
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for music database to be created..."
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for music database to be created by the database server..."
       MUSICDB="$(mysql --protocol=tcp --host mariadb --user kodi --password="${KODIPASSWORD}" --execute="show databases;" --silent | grep MyMusic)"
       sleep 1
    done
@@ -108,9 +120,9 @@ RestartContainer(){
 
 ##### Start #####
 Initialise
+WaitForDBOnline
 if [ ! -f "${USERDATA}/Database/Addons27.db" ]; then
-   WaitForDBOnline
-   EnableMariaDBLogging
+   if [ ! -z "${MYSQL_ROOT_PASSWORD}" ]; then EnableMariaDBLogging; fi
    StartKODI
    EnableAddons
    WaitForVideosDB

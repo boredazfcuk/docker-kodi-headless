@@ -31,4 +31,7 @@ if [ ! -d "${CONFIGDIR}/.kodi/addons/packages" ]; then
    LATESTLIBRARYAUTOUPDATE="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/" | awk '/libraryautoupdate/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
    curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTLIBRARYAUTOUPDATE}" -L "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/${LATESTLIBRARYAUTOUPDATE}"
    unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTLIBRARYAUTOUPDATE}" -d "${CONFIGDIR}/.kodi/addons"
+
+   chown -R abc:abc "${CONFIGDIR}"
+
 fi
