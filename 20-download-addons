@@ -1,37 +1,37 @@
 #!/bin/bash
 
-CONFIGDIR="/config"
+config_dir="/config"
 
-if [ ! -d "${CONFIGDIR}/.kodi/addons/packages" ]; then
+if [ ! -d "${config_dir}/.kodi/addons/packages" ]; then
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    First run detected Download required addons"
 
-   mkdir -p "${CONFIGDIR}/.kodi/addons/packages"
+   mkdir -p "${config_dir}/.kodi/addons/packages"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Download python-dateutil addon"
-   LATESTDATEUTIL="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.dateutil/" | awk '/dateutil/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
-   curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTDATEUTIL}" -L "http://mirrors.kodi.tv/addons/leia/script.module.dateutil/${LATESTDATEUTIL}"
-   unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTDATEUTIL}" -d "${CONFIGDIR}/.kodi/addons"
+   latest_dateutil="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.dateutil/" | awk '/dateutil/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
+   curl -so "${config_dir}/.kodi/addons/packages/${latest_dateutil}" -L "http://mirrors.kodi.tv/addons/leia/script.module.dateutil/${latest_dateutil}"
+   unzip -q "${config_dir}/.kodi/addons/packages/${latest_dateutil}" -d "${config_dir}/.kodi/addons"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Download future addon"
-   LATESTFUTURE="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.future/" | awk '/future/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
-   curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTFUTURE}" -L "http://mirrors.kodi.tv/addons/leia/script.module.future/${LATESTFUTURE}"
-   unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTFUTURE}" -d "${CONFIGDIR}/.kodi/addons"
+   latest_future="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.future/" | awk '/future/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
+   curl -so "${config_dir}/.kodi/addons/packages/${latest_future}" -L "http://mirrors.kodi.tv/addons/leia/script.module.future/${latest_future}"
+   unzip -q "${config_dir}/.kodi/addons/packages/${latest_future}" -d "${config_dir}/.kodi/addons"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Download six addon"
-   LATESTSIX="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.six/" | awk '/six/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
-   curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTSIX}" -L "http://mirrors.kodi.tv/addons/leia/script.module.six/${LATESTSIX}"
-   unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTSIX}" -d "${CONFIGDIR}/.kodi/addons"
+   latest_six="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.six/" | awk '/six/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
+   curl -so "${config_dir}/.kodi/addons/packages/${latest_six}" -L "http://mirrors.kodi.tv/addons/leia/script.module.six/${latest_six}"
+   unzip -q "${config_dir}/.kodi/addons/packages/${latest_six}" -d "${config_dir}/.kodi/addons"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Download kodi-six addon"
-   LATESTKODISIX="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.kodi-six/" | awk '/kodi-six/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
-   curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTKODISIX}" -L "http://mirrors.kodi.tv/addons/leia/script.module.kodi-six/${LATESTKODISIX}"
-   unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTKODISIX}" -d "${CONFIGDIR}/.kodi/addons"
+   latest_kodi_six="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/script.module.kodi-six/" | awk '/kodi-six/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
+   curl -so "${config_dir}/.kodi/addons/packages/${latest_kodi_six}" -L "http://mirrors.kodi.tv/addons/leia/script.module.kodi-six/${latest_kodi_six}"
+   unzip -q "${config_dir}/.kodi/addons/packages/${latest_kodi_six}" -d "${config_dir}/.kodi/addons"
 
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Download library auto-update addon"
-   LATESTLIBRARYAUTOUPDATE="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/" | awk '/libraryautoupdate/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
-   curl -so "${CONFIGDIR}/.kodi/addons/packages/${LATESTLIBRARYAUTOUPDATE}" -L "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/${LATESTLIBRARYAUTOUPDATE}"
-   unzip -q "${CONFIGDIR}/.kodi/addons/packages/${LATESTLIBRARYAUTOUPDATE}" -d "${CONFIGDIR}/.kodi/addons"
+   latest_library_auto_update="$(curl -sX GET "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/" | awk '/libraryautoupdate/{print $4}' FS='"' | grep -v "^$" | tail -n1)"
+   curl -so "${config_dir}/.kodi/addons/packages/${latest_library_auto_update}" -L "http://mirrors.kodi.tv/addons/leia/service.libraryautoupdate/${latest_library_auto_update}"
+   unzip -q "${config_dir}/.kodi/addons/packages/${latest_library_auto_update}" -d "${config_dir}/.kodi/addons"
 
-   chown -R abc:abc "${CONFIGDIR}"
+   chown -R abc:abc "${config_dir}"
 
 fi

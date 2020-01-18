@@ -2,39 +2,39 @@
 
 Initialise(){
    IFS=,
-   VIDEOID=1
-   if [ -z "${MUSICDIRS}" ]; then
-      MUSICDIRS="/storage/music/"
+   video_id=1
+   if [ -z "${music_dirs}" ]; then
+      music_dirs="/storage/music/"
    fi
-   if [ -z "${VIDEODIRS}" ]; then
-      VIDEODIRS="/storage/videos/"
+   if [ -z "${video_dirs}" ]; then
+      video_dirs="/storage/videos/"
    fi
-   if [ -z "${TVDIRS}" ]; then
-      TVDIRS="/storage/tvshows/"
+   if [ -z "${tv_dirs}" ]; then
+      tv_dirs="/storage/tvshows/"
    fi
-   if [ -z "${CERTPREFIX}" ]; then
-      CERTPREFIX="$(grep -o -P '(?<=certprefix\"\ default=\"true\">).*(?=\<\/setting\>)' "${USERDATA}/addon_data/metadata.themoviedb.orgsettings.xml")"
+   if [ -z "${certification_prefix}" ]; then
+      certification_prefix="$(grep -o -P '(?<=certprefix\"\ default=\"true\">).*(?=\<\/setting\>)' "${user_data_dir}/addon_data/metadata.themoviedb.orgsettings.xml")"
    else
-      CERTPREFIX="${CERTPREFIX} "
+      certification_prefix="${certification_prefix} "
    fi
-   if [ -z "${CERTCOUNTRY}" ]; then
-      CERTCOUNTRY="$(grep -o -P '(?<=tmdbcertcountry\">).*(?=\<\/setting\>)' "${USERDATA}/addon_data/metadata.themoviedb.org/settings.xml")"
+   if [ -z "${certification_country}" ]; then
+      certification_country="$(grep -o -P '(?<=tmdbcertcountry\">).*(?=\<\/setting\>)' "${user_data_dir}/addon_data/metadata.themoviedb.org/settings.xml")"
    else
-      CERTCOUNTRY="$(echo "${CERTCOUNTRY}" | tr "[:upper:]" "[:lower:]")"
+      certification_country="$(echo "${certification_country}" | tr "[:upper:]" "[:lower:]")"
    fi
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification country: ${CERTCOUNTRY}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification prefix: ${CERTPREFIX}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Music locations: ${MUSICDIRS}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Video locations: ${VIDEODIRS}"
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    TV locations: ${TVDIRS}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification country: ${certification_country}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Certification prefix: ${certification_prefix}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Music locations: ${music_dirs}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Video locations: ${video_dirs}"
+   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    TV locations: ${tv_dirs}"
 }
 
 WaitForDBOnline(){
-   while [ "$(mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
+   while [ "$(mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
       echo "Waiting for database server to come online..." 
-      local COUNTER=$(("${COUNTER:=0}" + 1))
-      if [ "${COUNTER}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
-      if [ "${COUNTER}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${KODIPASSWORD}"; fi
+      local counter=$(("${counter:=0}" + 1))
+      if [ "${counter}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
+      if [ "${counter}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${kodi_password}"; fi
       sleep 10
    done
 }
@@ -43,26 +43,26 @@ EnableMariaDBLogging(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable query logging"
    while [ "$(mysql --host=mariadb --user=root --password="${MYSQL_ROOT_PASSWORD}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
       echo "Waiting for database server to come online..." 
-      local COUNTER=$(("${COUNTER:=0}" + 1))
-      if [ "${COUNTER}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
-      if [ "${COUNTER}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${KODIPASSWORD}"; fi
+      local counter=$(("${counter:=0}" + 1))
+      if [ "${counter}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
+      if [ "${counter}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${kodi_password}"; fi
       sleep 10
    done
    mysql --protocol=tcp --host mariadb --user root --password="${MYSQL_ROOT_PASSWORD}" --execute="SET GLOBAL general_log=1;"
 }
 
 EnableAddons(){
-   while [ ! -f "${USERDATA}/Database/Addons27.db" ]; do
+   while [ ! -f "${user_data_dir}/Database/Addons27.db" ]; do
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Waiting for Addons databse to be created"
       sleep 5
    done
    sleep 5
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable downloaded addons"
-   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.dateutil";'
-   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.future";'
-   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.six";'
-   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.kodi-six";'
-   sqlite3 "${USERDATA}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="service.libraryautoupdate";'
+   sqlite3 "${user_data_dir}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.dateutil";'
+   sqlite3 "${user_data_dir}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.future";'
+   sqlite3 "${user_data_dir}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.six";'
+   sqlite3 "${user_data_dir}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="script.module.kodi-six";'
+   sqlite3 "${user_data_dir}/Database/Addons27.db" 'update installed set enabled=1 where addonid=="service.libraryautoupdate";'
 }
 
 StartKODI(){
@@ -75,41 +75,41 @@ StartKODI(){
 }
 
 WaitForVideosDB(){
-   while [ -z "${VIDEOSDB}" ]; do
+   while [ -z "${kodi_videos_db}" ]; do
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for video database to be created..."
-      VIDEOSDB="$(mysql --protocol=tcp --host mariadb --user kodi --password="${KODIPASSWORD}" --execute="show databases;" --silent | grep MyVideo)"
+      kodi_videos_db="$(mysql --protocol=tcp --host mariadb --user kodi --password="${kodi_password}" --execute="show databases;" --silent | grep MyVideo)"
       sleep 1
    done
 }
 
 WaitForMusicDB(){
-   while [ -z "${MUSICDB}" ]; do
+   while [ -z "${kodi_music_db}" ]; do
       echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for music database to be created by the database server..."
-      MUSICDB="$(mysql --protocol=tcp --host mariadb --user kodi --password="${KODIPASSWORD}" --execute="show databases;" --silent | grep MyMusic)"
+      kodi_music_db="$(mysql --protocol=tcp --host mariadb --user kodi --password="${kodi_password}" --execute="show databases;" --silent | grep MyMusic)"
       sleep 1
    done
 }
 
 AddVideoLocations(){
-   for VIDEODIR in ${VIDEODIRS}; do
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding movie content path to database: ${VIDEODIR}"
-      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${VIDEOSDB}; insert into path (idPath, strPath) values (NULL, '${VIDEODIR}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${VIDEOID}; update path set strContent='movies', strScraper='metadata.themoviedb.org', scanRecursive=2147483647, useFolderNames=1, strSettings='<settings version=\"2\"><setting id=\"certprefix\" default=\"true\">${CERTPREFIX}</setting><setting id=\"fanart\">true</setting><setting id=\"imdbanyway\" default=\"true\">false</setting><setting id=\"keeporiginaltitle\">true</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"RatingS\" default=\"true\">TMDb</setting><setting id=\"tmdbcertcountry\">${CERTCOUNTRY}</setting><setting id=\"trailer\">false</setting></settings>', noUpdate=0, exclude=0 where idPath=${VIDEOID};"
-      VIDEOID=$((VIDEOID + 1))
+   for video_dir in ${video_dirs}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding movie content path to database: ${video_dir}"
+      mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="use ${kodi_videos_db}; insert into path (idPath, strPath) values (NULL, '${video_dir}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${video_id}; update path set strContent='movies', strScraper='metadata.themoviedb.org', scanRecursive=2147483647, useFolderNames=1, strSettings='<settings version=\"2\"><setting id=\"certprefix\" default=\"true\">${certification_prefix}</setting><setting id=\"fanart\">true</setting><setting id=\"imdbanyway\" default=\"true\">false</setting><setting id=\"keeporiginaltitle\">true</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"RatingS\" default=\"true\">TMDb</setting><setting id=\"tmdbcertcountry\">${certification_country}</setting><setting id=\"trailer\">false</setting></settings>', noUpdate=0, exclude=0 where idPath=${video_id};"
+      video_id=$((video_id + 1))
    done
 }
 
 AddTVLocations(){
-   for TVDIR in ${TVDIRS}; do
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding tv content path to database: ${TVDIR}"
-      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${VIDEOSDB}; insert into path (idPath, strPath) values (NULL, '${TVDIR}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${VIDEOID}; update path set strContent='tvshows', strScraper='metadata.tvshows.themoviedb.org', scanRecursive=0, useFolderNames=0, strSettings='<settings version=\"2\"><setting id=\"fanarttvart\">true</setting><setting id=\"keeporiginaltitle\" default=\"true\">false</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"tmdbart\">true</setting></settings>', noUpdate=0, exclude=0 where idPath=${VIDEOID};"
-      VIDEOID=$((VIDEOID + 1))
+   for tv_dir in ${tv_dirs}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding tv content path to database: ${tv_dir}"
+      mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="use ${kodi_videos_db}; insert into path (idPath, strPath) values (NULL, '${tv_dir}'); update path set strContent='', strScraper='', scanRecursive=0, useFolderNames=0, strSettings='', noUpdate=0, exclude=1 where idPath=${video_id}; update path set strContent='tvshows', strScraper='metadata.tvshows.themoviedb.org', scanRecursive=0, useFolderNames=0, strSettings='<settings version=\"2\"><setting id=\"fanarttvart\">true</setting><setting id=\"keeporiginaltitle\" default=\"true\">false</setting><setting id=\"language\" default=\"true\">en</setting><setting id=\"tmdbart\">true</setting></settings>', noUpdate=0, exclude=0 where idPath=${video_id};"
+      video_id=$((video_id + 1))
    done
 }
 
 AddMusicLocations(){
-   for MUSICDIR in ${MUSICDIRS}; do
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding music content path to database: ${MUSICDIR}"
-      mysql --host=mariadb --user=kodi --password="${KODIPASSWORD}" --execute="use ${MUSICDB}; insert into path (idPath, strPath) values (NULL, '${MUSICDIR}');"
+   for music_dir in ${music_dirs}; do
+      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Adding music content path to database: ${music_dir}"
+      mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="use ${kodi_music_db}; insert into path (idPath, strPath) values (NULL, '${music_dir}');"
    done
 }
 
@@ -121,7 +121,7 @@ RestartContainer(){
 ##### Start #####
 Initialise
 WaitForDBOnline
-if [ ! -f "${USERDATA}/Database/Addons27.db" ]; then
+if [ ! -f "${user_data_dir}/Database/Addons27.db" ]; then
    if [ ! -z "${MYSQL_ROOT_PASSWORD}" ]; then EnableMariaDBLogging; fi
    StartKODI
    EnableAddons

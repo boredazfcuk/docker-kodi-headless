@@ -1,29 +1,29 @@
 #!/bin/bash
-EXITCODE=0
-WEBSERVERUSERNAME=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverusername>).*?(?=<\/webserverusername>)')
-WEBSERVERPASSWORD=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverpassword>).*?(?=<\/webserverpassword>)')
-EXITCODE="$(wget --quiet --tries=1 --user="${WEBSERVERUSERNAME}" --password="${WEBSERVERPASSWORD}" --spider "http://${HOSTNAME}:8080" | echo ${?})"
-if [ "${EXITCODE}" != 0 ]; then
+exit_code=0
+kodi_web_server_user=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverusername>).*?(?=<\/webserverusername>)')
+kodi_web_server_password=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverpassword>).*?(?=<\/webserverpassword>)')
+exit_code="$(wget --quiet --tries=1 --user="${kodi_web_server_user}" --password="${kodi_web_server_password}" --spider "http://${HOSTNAME}:8080" | echo ${?})"
+if [ "${exit_code}" != 0 ]; then
    echo "Kodi WebUI not accessible"
    exit 1
 fi
 
-VIDEODBSERVER=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<host>).*?(?=<\/host>)')
-VIDEODBUSER=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<user>).*?(?=<\/user>)')
-VIDEODBPASS=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<pass>).*?(?=<\/pass>)')
-VIDEODBNAME=$(mysql --protocol=tcp --host "${VIDEODBSERVER}" --user "${VIDEODBUSER}" --password="${VIDEODBPASS}" --execute="show databases;" --silent | grep MyVideo)
-EXITCODE="$(mysql --protocol=tcp --host "${VIDEODBSERVER}" --user "${VIDEODBUSER}" --password="${VIDEODBPASS}" --execute="use ${VIDEODBNAME}; select 1" 2>&1 >/dev/null | echo ${?})"
-if [ "${EXITCODE}" != 0 ]; then
+kodi_video_db_server=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<host>).*?(?=<\/host>)')
+kodi_video_db_user=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<user>).*?(?=<\/user>)')
+kodi_video_db_password=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<videodatabase>/{flag=1; next} /<\/videodatabase>/{flag=0} flag' | grep -o -P '(?<=\<pass>).*?(?=<\/pass>)')
+kodi_video_db_name=$(mysql --protocol=tcp --host "${kodi_video_db_server}" --user "${kodi_video_db_user}" --password="${kodi_video_db_password}" --execute="show databases;" --silent | grep MyVideo)
+exit_code="$(mysql --protocol=tcp --host "${kodi_video_db_server}" --user "${kodi_video_db_user}" --password="${kodi_video_db_password}" --execute="use ${kodi_video_db_name}; select 1" 2>&1 >/dev/null | echo ${?})"
+if [ "${exit_code}" != 0 ]; then
    echo "Video database not accessible"
    exit 1
 fi
 
-MUSICDBSERVER=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<host>).*?(?=<\/host>)')
-MUSICDBUSER=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<user>).*?(?=<\/user>)')
-MUSICDBPASS=$(cat "${USERDATA}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<pass>).*?(?=<\/pass>)')
-MUSICDBNAME=$(mysql --protocol=tcp --host "${MUSICDBSERVER}" --user "${MUSICDBUSER}" --password="${MUSICDBPASS}" --execute="show databases;" --silent | grep MyMusic)
-EXITCODE="$(mysql --protocol=tcp --host "${MUSICDBSERVER}" --user "${MUSICDBUSER}" --password="${MUSICDBPASS}" --execute="use ${MUSICDBNAME}; select 1" 2>&1 >/dev/null | echo ${?})"
-if [ "${EXITCODE}" != 0 ]; then
+kodi_music_db_server=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<host>).*?(?=<\/host>)')
+kodi_music_db_user=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<user>).*?(?=<\/user>)')
+kodi_music_db_password=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<musicdatabase>/{flag=1; next} /<\/musicdatabase>/{flag=0} flag' | grep -o -P '(?<=\<pass>).*?(?=<\/pass>)')
+kodi_music_db_name=$(mysql --protocol=tcp --host "${kodi_music_db_server}" --user "${kodi_music_db_user}" --password="${kodi_music_db_password}" --execute="show databases;" --silent | grep MyMusic)
+exit_code="$(mysql --protocol=tcp --host "${kodi_music_db_server}" --user "${kodi_music_db_user}" --password="${kodi_music_db_password}" --execute="use ${kodi_music_db_name}; select 1" 2>&1 >/dev/null | echo ${?})"
+if [ "${exit_code}" != 0 ]; then
    echo "Music database not accessible"
    exit 1
 fi
