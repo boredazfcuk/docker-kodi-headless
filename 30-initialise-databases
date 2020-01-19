@@ -122,7 +122,7 @@ RestartContainer(){
 Initialise
 WaitForDBOnline
 if [ ! -f "${user_data_dir}/Database/Addons27.db" ]; then
-   if [ ! -z "${MYSQL_ROOT_PASSWORD}" ]; then EnableMariaDBLogging; fi
+   if [ "${MYSQL_ROOT_PASSWORD}" ]; then EnableMariaDBLogging; fi
    StartKODI
    EnableAddons
    WaitForVideosDB
