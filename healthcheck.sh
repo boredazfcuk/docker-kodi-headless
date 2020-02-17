@@ -1,10 +1,7 @@
 #!/bin/bash
-exit_code=0
-kodi_web_server_user=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverusername>).*?(?=<\/webserverusername>)')
-kodi_web_server_password=$(cat "${user_data_dir}/advancedsettings.xml" | awk '/<services>/{flag=1; next} /<\/services>/{flag=0} flag' | grep -o -P '(?<=\<webserverpassword>).*?(?=<\/webserverpassword>)')
-exit_code="$(wget --quiet --tries=1 --user="${kodi_web_server_user}" --password="${kodi_web_server_password}" --spider "http://${HOSTNAME}:8080" | echo ${?})"
-if [ "${exit_code}" != 0 ]; then
-   echo "Kodi WebUI not accessible"
+
+if [ "$(netcat -z "$(hostname -i)" 9090; echo "${?}")" -ne 0 ]; then
+   echo "Kodi WebUI not responding on port 9090"
    exit 1
 fi
 

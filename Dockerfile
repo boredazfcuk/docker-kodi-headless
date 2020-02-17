@@ -6,7 +6,7 @@ RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED *****" && \
    echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install dependencies" && \
    apt-get update && \
    apt-get upgrade -y && \
-   apt-get install -y wget python mariadb-client unzip sqlite3 --no-install-recommends && \
+   apt-get install -y wget python mariadb-client unzip sqlite3 netcat --no-install-recommends && \
 echo "$(date '+%d/%m/%Y - %H:%M:%S') | Configure logging" && \
    sed -i -e '/contenv/a \\n\ttail -F \/config\/.kodi\/temp\/kodi.log 2>/dev/null & \\' /etc/services.d/kodi/run
 
