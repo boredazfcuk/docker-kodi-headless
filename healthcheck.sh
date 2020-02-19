@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ "$(netcat -z "$(hostname -i)" 9090; echo "${?}")" -ne 0 ]; then
+if [ "$(netcat -z "$(hostname -i)" 9090; echo $?)" -ne 0 ]; then
    echo "Kodi WebUI not responding on port 9090"
    exit 1
 fi
