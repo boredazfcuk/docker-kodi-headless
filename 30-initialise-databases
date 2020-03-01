@@ -29,27 +29,15 @@ Initialise(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    TV locations: ${tv_dirs}"
 }
 
-WaitForDBServer(){
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Wait for database server to come online..."
-   while [ "$(nc -z mariadb 3306; echo "${?}")" -ne 0 ]; do
-      echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Retry in 10 seconds"
+WaitForDBOnline(){
+   while [ "$(mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" -ne 2 ]; do
+      echo "Waiting for database server to come online..." 
       local counter=$(("${counter:=0}" + 1))
       if [ "${counter}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
       if [ "${counter}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${kodi_password}"; fi
       sleep 10
    done
-   echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Database server available"
 }
-
-# WaitForDBOnline(){
-   # while [ "$(mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="SELECT 1;" 2>/dev/null | grep -c 1)" != 2 ]; do
-      # echo "Waiting for database server to come online..." 
-      # local counter=$(("${counter:=0}" + 1))
-      # if [ "${counter}" = 6 ]; then echo "Database server is taking a long time to respond"; fi
-      # if [ "${counter}" -gt 12 ]; then echo "Database server is unavailable using credentials - kodi:${kodi_password}"; fi
-      # sleep 10
-   # done
-# }
 
 EnableMariaDBLogging(){
    echo "$(date '+%Y-%m-%d %H:%M:%S') INFO:    Enable query logging"
@@ -132,8 +120,7 @@ RestartContainer(){
 
 ##### Start #####
 Initialise
-WaitForDBServer
-#WaitForDBOnline
+WaitForDBOnline
 if [ ! -f "${user_data_dir}/Database/Addons27.db" ]; then
    if [ "${MYSQL_ROOT_PASSWORD}" ]; then EnableMariaDBLogging; fi
    StartKODI

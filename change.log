@@ -1,0 +1,3 @@
+20200229
+
+ - Reverted the change that just checks if the port was open, it was spamming SQL logs as an 'unauthenticated user' connection.
