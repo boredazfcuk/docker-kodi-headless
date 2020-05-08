@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 while [ "$(mysql --host=mariadb --user=kodi --password="${kodi_password}" --execute="SELECT User FROM mysql.user;" 2>/dev/null | grep -c kodi)" = 0 ]; do
    echo "Waiting for database server to come online..." 
    sleep 10

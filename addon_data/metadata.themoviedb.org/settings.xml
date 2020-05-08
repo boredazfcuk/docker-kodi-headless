@@ -1,5 +1,5 @@
 <settings version="2">
-    <setting id="certprefix" default="true">UK: </setting>
+    <setting id="certprefix" default="true">Rated </setting>
     <setting id="fanart">true</setting>
     <setting id="imdbanyway" default="true">false</setting>
     <setting id="keeporiginaltitle">true</setting>
