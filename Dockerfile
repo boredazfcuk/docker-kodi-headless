@@ -2,7 +2,7 @@ FROM linuxserver/kodi-headless
 MAINTAINER boredazfcuk
 ENV user_data_dir=/config/.kodi/userdata
 
-RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED *****" && \
+RUN echo "$(date '+%d/%m/%Y - %H:%M:%S') | ***** BUILD STARTED FOR KODI-HEADLESS *****" && \
    echo "$(date '+%d/%m/%Y - %H:%M:%S') | Install dependencies" && \
    apt-get update && \
    apt-get upgrade -y && \
