@@ -6,7 +6,7 @@
     <setting id="alsorotten" value="false" />
     <setting id="alsotmdb" value="false" />
     <setting id="certificationssource" value="IMDb" />
-    <setting id="certprefix" value="  " />
+    <setting id="certprefix" value="" />
     <setting id="countrysource" value="themoviedb.org" />
     <setting id="creditssource" value="themoviedb.org" />
     <setting id="fanart" value="true" />

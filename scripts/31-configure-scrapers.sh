@@ -32,25 +32,28 @@ Initialise(){
 
 SetCertificationCountry(){
    sed -i \
-      -e "/tmdbcertcountry/ s%>.*<%>${certification_country}<%" \
-      "${user_data_dir}/addon_data/metadata.themoviedb.org/settings.xml"
+      -e "s/id=\"tmdbcertcountry\" default=\".*\"/id=\"tmdbcertcountry\" default=\"${certification_country}\"/" \
+      "/config/.kodi/addons/metadata.universal/resources/settings.xml"
    sed -i \
-      -e "/tmdbcertcountry/ s%>.*<%>${certification_country}<%" \
-      "${user_data_dir}/addon_data/metadata.universal/settings.xml"
+      -e "s/id=\"tmdbcertcountry\" default=\".*\"/id=\"tmdbcertcountry\" default=\"${certification_country}\"/" \
+      "/config/.kodi/addons/metadata.universal/universal.xml"
+   sed -i \
+      -e "s/id=\"tmdbcertcountry\" default=\".*\"/id=\"tmdbcertcountry\" default=\"${certification_country}\"/" \
+      "/config/.kodi/addons/metadata.tvshows.themoviedb.org/resources/settings.xml"
 }
 
 SetCertificationPrefix(){
    if [ -z "${certification_prefix}" ]; then
       sed -i \
-         -e "/certprefix/ s%>.*<%><%" \
-         "${user_data_dir}/addon_data/metadata.themoviedb.org/settings.xml"
+         -e "s/id=\"certprefix\" default=\".*\"/id=\"certprefix\" default=\"Rated \"/" \
+         "/config/.kodi/addons/metadata.themoviedb.org/resources/settings.xml"
       sed -i \
          -e "/certprefix/ s%>.*<%><%" \
          "${user_data_dir}/addon_data/metadata.universal/settings.xml"
    else
       sed -i \
-         -e "/certprefix/ s%>.*<%>${certification_prefix}<%" \
-         "${user_data_dir}/addon_data/metadata.themoviedb.org/settings.xml"
+         -e "s/id=\"certprefix\" default=\".*\"/id=\"certprefix\" default=\"${certification_prefix}\"/" \
+         "/config/.kodi/addons/metadata.themoviedb.org/resources/settings.xml"
       sed -i \
          -e "/certprefix/ s%>.*<%>${certification_prefix}<%" \
          "${user_data_dir}/addon_data/metadata.universal/settings.xml"
